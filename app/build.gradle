@@ -1,0 +1,33 @@
+plugins { id 'com.android.application' }
+
+android {
+    // Increased to at least 26 or 30 to work with modern JDKs/Gradle
+    compileSdkVersion 30
+
+    defaultConfig {
+        applicationId "at.fhooe.usmile.gpjshell"
+        minSdkVersion 16    // Keep 16 for wide device support
+        targetSdkVersion 30 // Update to match compileSdkVersion
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    // Required for modern Java compatibility
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    // Replace 'compile' with 'implementation'
+    implementation 'com.android.support:support-v4:28.0.0'
+    implementation files('libs/org.simalliance.openmobileapi.jar')
+}
