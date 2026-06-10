@@ -1,3 +1,4 @@
+// ==================== MODIFIED: Added Default Password Auto-fill and Show/Hide Toggle ====================
 /*******************************************************************************
  * Copyright (c) 2014 Michael Hölzl <mihoelzl@gmail.com>.
  * All rights reserved. This program and the accompanying materials
@@ -8,6 +9,7 @@
  * Contributors:
  *     Michael Hölzl <mihoelzl@gmail.com> - initial implementation
  *     Thomas Sigmund - data base, key set, channel set selection and GET DATA integration
+ *     Enhanced: Added default password 00000000, show/hide toggle, auto-fill
  ******************************************************************************/
 package at.fhooe.usmile.gpjshell;
 
@@ -17,8 +19,11 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.text.InputType;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Toast;
 import at.fhooe.usmile.gpjshell.db.KeysetDataSource;
@@ -33,27 +38,69 @@ public class AddKeysetActivity extends Activity {
 	private EditText editKEK;
 	private Button mPositive;
 	private Button mNegative;
+	private Button mBtnFillDefault;
+	private CheckBox mCbShowPassword;
+	
+	// ADDED: Default GP authentication password
+	private static final String DEFAULT_KEY = "0000000000000000";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_add_keyset);
+		
 		editID = (EditText) findViewById(R.id.edit_keyset_id);
 		editVersion = (EditText) findViewById(R.id.edit_keyset_version);
 		editName = (EditText) findViewById(R.id.edit_keyset_name);
 		editMAC = (EditText) findViewById(R.id.edit_keyset_mac);
 		editENC = (EditText) findViewById(R.id.edit_keyset_enc);
 		editKEK = (EditText) findViewById(R.id.edit_keyset_kek);
-
 		mPositive = (Button) findViewById(R.id.btn_install_applet);
+		mNegative = (Button) findViewById(R.id.btn_list_applets);
+		
+		// ADDED: Get new UI elements
+		mBtnFillDefault = (Button) findViewById(R.id.btn_fill_default);
+		mCbShowPassword = (CheckBox) findViewById(R.id.cb_show_password);
+		
+		// ADDED: Set default values for new keyset
+		editID.setText("0");
+		editVersion.setText("1");
+		editName.setText("GP Default");
+		
+		// ADDED: Fill default password button
+		mBtnFillDefault.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				editMAC.setText(DEFAULT_KEY);
+				editENC.setText(DEFAULT_KEY);
+				editKEK.setText(DEFAULT_KEY);
+				Toast.makeText(AddKeysetActivity.this, 
+					"已填充默认密码: 00000000", Toast.LENGTH_SHORT).show();
+			}
+		});
+		
+		// ADDED: Show/Hide password toggle
+		mCbShowPassword.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				int inputType;
+				if (isChecked) {
+					inputType = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD;
+				} else {
+					inputType = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD;
+				}
+				editMAC.setInputType(inputType);
+				editENC.setInputType(inputType);
+				editKEK.setInputType(inputType);
+			}
+		});
+		
 		mPositive.setOnClickListener(new View.OnClickListener() {
-
 			@Override
 			public void onClick(View v) {
 				if (editID.getText() != null
 						&& !editID.getText().toString().equals("")
 						&& !editVersion.getText().toString().equals("")) {
-					
 					
 					//set unique id to -1. it will be set by DB later
 					GPKeyset keyset = new GPKeyset(-1, editName.getText()
@@ -83,10 +130,7 @@ public class AddKeysetActivity extends Activity {
 		});
 		
 		
-
-		mNegative = (Button) findViewById(R.id.btn_list_applets);
 		mNegative.setOnClickListener(new View.OnClickListener() {
-
 			@Override
 			public void onClick(View v) {
 				setResult(RESULT_CANCELED);
@@ -114,3 +158,4 @@ public class AddKeysetActivity extends Activity {
         return builder.create();
     }
 }
+// ==================== END MODIFICATION ====================
